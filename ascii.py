@@ -29,6 +29,7 @@ def reconstruct_ascii(url):
     parser = TableParser()
     parser.feed(html)
 
+    # Group (x, char, y)
     triples = []
     for i in range(0, len(parser.cells), 3):
         try:
@@ -39,17 +40,25 @@ def reconstruct_ascii(url):
         except (ValueError, IndexError):
             continue
 
+    min_x = min(x for x, _, _ in triples)
+    min_y = min(y for _, _, y in triples)
     max_x = max(x for x, _, _ in triples)
     max_y = max(y for _, _, y in triples)
 
-    grid = [[" " for _ in range(max_x + 1)] for _ in range(max_y + 1)]
+    width = max_x - min_x + 1
+    height = max_y - min_y + 1
+
+    grid = [[" " for _ in range(width)] for _ in range(height)]
 
     for x, char, y in triples:
-        grid[y][x] = char
+        grid_y = max_y - y   # invert Y so 0 is top
+        grid_x = x - min_x
+        grid[grid_y][grid_x] = char
 
+    print("\n Reconstructed ASCII Art:\n")
     for row in grid:
         print("".join(row))
 
 if __name__ == "__main__":
-    url = "https://docs.google.com/document/d/e/2PACX-1vSmVmKxyqWZ-piMuUS251weVuIABoqm7tSyFP-GqpM9atKcV2ShZMmt5mA2-uDg_9kVFS7Q1jeB84m0/pub"
+    url = "https://docs.google.com/document/d/e/2PACX-1vSHZVsgUa7oCncQUD3UWOTCIIpdDyM2EEHJ5MQnUSSQQ6sd2MX0FGiJaMD3QAzjnPOUNHNmATyc72Ob/pub"
     reconstruct_ascii(url)
